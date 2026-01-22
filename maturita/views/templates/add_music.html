@@ -1,0 +1,102 @@
+
+<title>Toney | Manage Music</title>
+
+<h1>Manage Music</h1>
+<div>
+    <button onclick="openMusic(event, 'Album')" class="tablinks">Album</button>
+    <button onclick="openMusic(event, 'Song')" class="tablinks">Song</button>
+</div>
+
+<div id="Album" class="tabcontent" style="display: none;">
+    <h1>Add Album</h1>
+    <form hx-post="{{ url_for('add_album') }}" hx-target="#main-content" hx-encoding="multipart/form-data">
+        <label for="">Title:</label>
+        <input type="text" name="title" required autocomplete="off"/><br>
+        <label for ="">Release Date:</label>
+        <input type="number" name="release" required autocomplete="off"/><br>
+        <label for ="">Album Cover:</label>
+        <input type="file" name="albumfile" accept=".png, .jpg, .jpeg" required><br>
+        <input type="submit" value="Add">
+    </form><br>
+
+    <h1>Delete Album</h1>
+    <form action="{{ url_for('del_album') }}" method="POST" enctype="multipart/form-data">
+        <label for="id">Album:</label>
+        <select name="id" required class="selecter">
+            {% if session["role"] == 1 %}
+                {% for album in albums %}
+                    <option value="{{ album.album_id }}">{{ album.title }} by {{ names[album.author] }}</option>
+                {% endfor %}
+
+            {% else %}
+                {% for album in albums %}
+                    {% if session["user"] == album.author %}
+                        <option value="{{ album.album_id }}">{{ album.title }}</option>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </select><br>
+        <input type="submit" value="Delete">
+    </form><br>
+</div>
+
+    <div id="Song" class="tabcontent" style="display: none;">
+        <h1>Add Song</h1>
+                <form action="{{ url_for('add_song') }}" method="POST" enctype="multipart/form-data">
+                    <label for="">Title:</label>
+                    <input type="text" name="title" required autocomplete="off"/><br>
+                    <label for ="">Album:</label>
+                    <select name="album" required class="selecter">
+                        {% if session["role"] == 1 %}
+                            {% for album in albums %}
+                                <option value="{{ album.album_id }}">{{ album.title }} by {{ names[album.author] }}</option>
+                            {% endfor %}
+
+                        {% else %}
+                            {% for album in albums %}
+                                {% if session["user"] == album.author %}
+                                    <option value="{{ album.album_id }}">{{ album.title }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </select><br>
+                    <label for ="">Song:</label>
+                    <input type="file" name="songfile" accept=".mp3" required><br>
+                    <input type="submit" value="Add">
+                </form><br>
+        <h1>Delete Song</h1>
+        <form action="{{ url_for('del_song') }}" method="POST" enctype="multipart/form-data">
+            <label for="id">Song:</label>
+            <select name="id" required class="selecter">
+                {% if session["role"] == 1 %}
+                    {% for song in songs %}
+                        <option value="{{ song.song_id }}">{{ song.title }} by {{ names[song.author] }}</option>
+                    {% endfor %}
+
+                {% else %}
+                    {% for song in songs %}
+                        {% if session["user"] == song.author %}
+                            <option value="{{ song.song_id }}">{{ song.title }}</option>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </select><br>
+            <input type="submit" value="Delete">
+        </form><br>
+    </div>
+
+    <script>
+        function openMusic(evt, MusicType) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(MusicType).style.display = "block";
+        evt.currentTarget.className += " active";
+        }
+    </script>

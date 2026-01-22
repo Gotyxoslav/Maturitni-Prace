@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toney</title>
+    <link rel="stylesheet" href="../static/style.css">
+    
+    <script src="../static/js/htmx.min.js"></script>
+</head>
+<body class="pozadi">
+
+    {% include "navbar.html" %}
+
+    <br><br><br>
+
+    <div id="main-content">
+        {% if content_template %}
+            {% include content_template %}
+        {% endif %}
+    </div>
+
+    <div style="position: fixed; bottom: 0; left: 0; width: 100%; background: #1a1a1a; border-top: 1px solid #333; padding: 10px; z-index: 1000;">
+        <audio id="global-player" controls style="width: 100%;">
+            <source src="" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script>
+        function play_song(songfile) {
+            var player = document.getElementById('global-player');
+            player.src = songfile;
+            player.play();
+        }
+    </script>
+
+</body>
+</html>

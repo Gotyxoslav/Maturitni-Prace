@@ -1,0 +1,20 @@
+<link rel="stylesheet" href="../static/style.css">
+
+<div class="nav">
+    <h1><a href="#" hx-get="{{ url_for('index') }}" hx-target="#main-content" hx-push-url="true" class="title">Toney</a></h1>
+    
+    <a href="#" class="btn">Profile</a>
+    <a href="#" hx-get="{{ url_for('index') }}" hx-target="#main-content" hx-push-url="true" class="btn">Home</a> <!-- hx-get means basically that it gets the html of the thing we ask it, hx-target puts the html in the thing (so here in main content div), hx-push-url is if it should or shouldn't update the browser url like a normal website -->
+    <a href="#" class="btn">Explore</a>
+    <a href="#" class="btn">Library</a>
+
+    {% if session["role"] == 1 or session["role"] == 2%}
+        <a href="#" hx-get="{{ url_for('manage_song') }}" hx-target="#main-content" hx-push-url="true" class="btn">Manage Music</a>
+    {% endif %}
+
+    {% if "user" in session %}
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    {% else %}
+        <a href="{{ url_for('login') }}" class="btne">Login</a>
+    {% endif %}
+</div><br>

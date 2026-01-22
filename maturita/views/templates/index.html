@@ -1,0 +1,6 @@
+<title>Toney</title>
+{% for song in songs %}
+    <span>{{ song.title }}</span>
+    <button onclick="play_song('../static/data/{{ song.songfile }}')"> ▶️ </button>
+    <br>
+{% endfor %}
