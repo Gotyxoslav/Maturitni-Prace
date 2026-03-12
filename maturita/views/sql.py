@@ -2,10 +2,10 @@ import mysql.connector
 
 def get_connected():
     return mysql.connector.connect(
-        host="db4free.net",
-        user="toneyadmin",
-        password="qW4rVG58i",
-        database="toneysql"
+        host="dbs.spskladno.cz",
+        user="student10",
+        password="spsnet",
+        database="vyuka10"
     )
 
 mydb = get_connected() 

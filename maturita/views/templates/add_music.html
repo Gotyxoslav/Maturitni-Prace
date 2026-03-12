@@ -1,6 +1,10 @@
 
 <title>Toney | Manage Music</title>
-
+{% if error %}
+    <div style="color:red;">
+        {{ error }}
+    </div>
+{% endif %}
 <h1>Manage Music</h1>
 <div>
     <button onclick="openMusic(event, 'Album')" class="tablinks">Album</button>

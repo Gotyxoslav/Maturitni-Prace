@@ -2,7 +2,6 @@ from flask import Flask, request, render_template, redirect, session, url_for, m
 import uuid
 import os
 import json
-from werkzeug.utils import secure_filename
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
@@ -31,7 +30,7 @@ def render_page(page_name, **kwargs):
 
 @app.route('/')
 def index():
-    songs = get_data("SONGS_MTR")
+    songs = get_data("MATURITA_HOL_SONGS")
     return render_page("index.html", songs=songs)
 
 # --- Song Management ---
@@ -42,14 +41,14 @@ def manage_song():
         role = session["role"]
     
         if role == 1 or role == 2:
-            albums = get_data("ALBUMS_MTR")
+            albums = get_data("MATURITA_HOL_ALBUMS")
             albums = sorted(albums, key=lambda x: x["title"])
 
-            songs = get_data("SONGS_MTR")
+            songs = get_data("MATURITA_HOL_SONGS")
             songs = sorted(songs, key=lambda x: x["title"])
 
-            users = get_data("USERS_MTR")
-            names = {u['id']: u['username'] for u in users}
+            users = get_data("MATURITA_HOL_USERS")
+            names = {u['id']: u['username'] for u in users} # makes a dictionary where it gives id to username (so like {"sa5d4w5f2a": "user14", "frge5f1ss5f": "musicguy5"})
 
             return render_page("add_music.html", albums=albums, names=names, songs=songs)
         
@@ -69,7 +68,7 @@ def add_album():
         filepath = os.path.join(app.config["UPLOAD_FOLDER"] + "/albums", filename)
         albumfile.save(filepath)
 
-        add_data("ALBUMS_MTR", {
+        add_data("MATURITA_HOL_ALBUMS", {
             "album_id": album_id,
             "title": title,
             "author": author,
@@ -79,13 +78,13 @@ def add_album():
 
         return redirect(url_for("index"))
     else:
-        return redirect(url_for("manage_song"))
+        return redirect(url_for("manage_song"), error="Incorrect album file, use .png, .jpg or .jpeg")
     
 @app.route('/del-album', methods=["POST"])
 def del_album():
     id = request.form.get("id")
-    songs = get_data("SONGS_MTR")
-    albums = get_data("ALBUMS_MTR")
+    songs = get_data("MATURITA_HOL_SONGS")
+    albums = get_data("MATURITA_HOL_ALBUMS")
 
     for song in songs:
         if "album" in song and song["album"] == id:
@@ -99,10 +98,10 @@ def del_album():
             if os.path.exists(filepath):
                 os.remove(filepath)
 
-    del_data("SONGS_MTR", {
+    del_data("MATURITA_HOL_SONGS", {
         "album": id
     })
-    del_data("ALBUMS_MTR", {
+    del_data("MATURITA_HOL_ALBUMS", {
         "album_id": id
     })
 
@@ -122,7 +121,7 @@ def add_song():
         filepath = os.path.join(app.config["UPLOAD_FOLDER"] + "/songs", filename)
         songfile.save(filepath)
         
-        add_data("SONGS_MTR", {
+        add_data("MATURITA_HOL_SONGS", {
             "song_id": song_id,
             "title": title,
             "author": author,
@@ -132,12 +131,12 @@ def add_song():
 
         return redirect(url_for("index"))
     else:
-        return redirect(url_for("manage_song"))
+        return redirect(url_for("manage_song"), error="Incorrect audio file, use .mp3")
     
 @app.route('/del-song', methods=["POST"])
 def del_song():
     id = request.form.get("id")
-    songs = get_data("SONGS_MTR")
+    songs = get_data("MATURITA_HOL_SONGS")
 
     for song in songs:
         if "song_id" in song and song["song_id"] == id:
@@ -145,7 +144,7 @@ def del_song():
             if os.path.exists(filepath):
                 os.remove(filepath)
 
-    del_data("SONGS_MTR", {
+    del_data("MATURITA_HOL_SONGS", {
         "song_id": id
     })
 
@@ -161,20 +160,16 @@ def register():
         password = request.form.get("password")
         id = generate_id()
 
-        with open("views\static\data\pfp\Portrait_Placeholder.png", "rb") as f:
-            pfp_img = f.read()
-
-        users = get_data("USERS_MTR")
+        users = get_data("MATURITA_HOL_USERS")
         for u in users:
             if u["email"] == email:
                 return redirect(url_for("login"))
 
-        add_data("USERS_MTR", {
+        add_data("MATURITA_HOL_USERS", {
             "username": username,
             "email": email,
             "password": ph.hash(password),
-            "id": id,
-            "pfp": pfp_img
+            "id": id
         })
         return redirect(url_for("login"))
 
@@ -186,7 +181,7 @@ def login():
         email = request.form.get("email")
         password = request.form.get("password")
 
-        users = get_data("USERS_MTR")
+        users = get_data("MATURITA_HOL_USERS")
         for u in users:
             if u["email"] == email:
                 try:
