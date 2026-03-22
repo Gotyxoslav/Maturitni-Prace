@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
     QStackedWidget
 )
 
-from sql import get_data
+from sql import get_data, update_data
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
@@ -156,7 +156,87 @@ class UserInfoWin(QWidget):
         role_label = QLabel(f"Role: {self.role}")
         self.winlayout.addWidget(role_label)
 
+        self.btn = QPushButton("Edit")
+        self.winlayout.addWidget(self.btn)
+        self.btn.clicked.connect(self.new_window)
+
         self.setLayout(self.winlayout)
+
+    def new_window(self):
+        self.win = UserInfoWin_Edit(self.id, self.username, self.email, self.password, self.role)
+        self.win.show()
+
+class UserInfoWin_Edit(QWidget):
+    def __init__(self, id, username, email, password, role):
+        QWidget.__init__(self)
+        self.winlayout = QVBoxLayout()
+        self.username = username
+        self.id = id
+        self.email = email
+        self.password = password
+        self.role = role
+
+        self.setWindowTitle(f"Edit {self.username}")
+        username_label = QLabel("Username:")
+        self.input_username = QLineEdit()
+        self.winlayout.addWidget(username_label)
+        self.winlayout.addWidget(self.input_username)
+
+        email_label = QLabel("E-mail:")
+        self.input_email = QLineEdit()
+        self.winlayout.addWidget(email_label)
+        self.winlayout.addWidget(self.input_email)
+
+        password_label = QLabel("Password:")
+        self.input_password = QLineEdit()
+        self.winlayout.addWidget(password_label)
+        self.winlayout.addWidget(self.input_password)
+
+        role_label = QLabel("Role:")
+        self.input_role = QLineEdit()
+        self.winlayout.addWidget(role_label)
+        self.winlayout.addWidget(self.input_role)
+        
+        self.btn = QPushButton("Update")
+        self.winlayout.addWidget(self.btn)
+        self.btn.clicked.connect(self.update_info)
+
+        self.info_label = QLabel("")
+        self.winlayout.addWidget(self.info_label)
+
+        self.setLayout(self.winlayout)
+
+    def update_info(self):
+        self.new_username = self.input_username.text()
+        self.new_email = self.input_email.text()
+        self.new_password = self.input_password.text()
+        self.new_role = self.input_role.text()
+
+        if self.new_username == "":
+            self.new_username = self.username
+
+        if self.new_email == "":
+            self.new_email = self.email
+
+        if self.new_password == "":
+            self.new_password = self.password
+        else:
+            self.new_password = ph.hash(self.new_password)
+
+        if self.new_role == "":
+            self.new_role = self.role
+        elif self.new_role not in ["0", "1", "2"]:
+             return self.info_label.setText("Incorrect value in role!")
+
+        update_data("MATURITA_HOL_USERS", {
+            "username": self.new_username,
+            "email": self.new_email,
+            "password": self.new_password,
+            "role": self.new_role
+        }, self.id)
+
+        self.info_label.setText("Info updated in the database!")
+
 
 app = QApplication([])
 

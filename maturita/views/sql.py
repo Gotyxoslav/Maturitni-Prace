@@ -37,3 +37,11 @@ def del_data(table, data, logic="AND"):
 
     mycursor.execute(sql, column_data)
     mydb.commit()
+
+def update_data(table, data, id):
+    set_data = ", ".join([f"{key} = %s" for key in data.keys()]) # grabs each column name (name, password, etc) and adds "= %s" and finally adds ","
+    column_data = tuple(data.values()) + (id,) # grabs all the inserted column data (123, John, etc) and also adds the id
+
+    sql = f"UPDATE {table} SET {set_data} WHERE id = %s"
+    mycursor.execute(sql, column_data)
+    mydb.commit()
