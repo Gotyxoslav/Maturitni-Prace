@@ -1,0 +1,51 @@
+<title>Toney | {{ user.username }}</title>
+
+<div style="display: flex; align-items: center; gap: 20px;">
+    
+    <img src="{{ url_for('static', filename='data/' + user.pfp) }}" alt="Profile Picture" class="cover_image" style="height: 150px; width: 150px;">
+        
+    <div>
+        <p style="margin: 5px 0 0 0;">Profile</p>
+        <h1 style="margin: 0;">{{ user.username }}</h1>
+        {% if user["role"] == 0 %}
+        <p>User</p>
+        {% elif user["role"] == 1 %}
+        <p>Admin</p>
+        {% elif user["role"] == 2 %}
+        <p>Creator</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if user.id == session["user"] %}
+    <button style="font-size: large;" onclick="showEditUserDialog()">Edit</button>
+{% endif %}
+
+<p>{{ user.description }}</p>
+
+
+
+<div>
+    <dialog id="edit-user-dialog">
+        <form hx-post="{{ url_for('update_profile') }}" hx-target="#main-content" hx-encoding="multipart/form-data">
+            <input type="file" name="pfp" accept=".png, .jpg, .jpeg"><br>
+            <label for="">Username:</label>
+            <input type="text" name="name" value="{{ user.username }}"/><br>
+            <label for ="">Description:</label>
+            <input type="text" name="description" value="{{ user.description }}"/><br>
+            <input type="hidden" name="user" value="{{ user.id }}">
+            <input type="submit" value="Edit">
+        </form>
+        <button onclick="closeEditUserDialog()">Cancel</button>
+    </dialog>
+</div>
+
+<script>
+    function showEditUserDialog() {
+        document.getElementById("edit-user-dialog").showModal();
+    }
+
+    function closeEditUserDialog() {
+        document.getElementById("edit-user-dialog").close();
+    }
+</script>

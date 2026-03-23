@@ -6,7 +6,7 @@ import json
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
-from sql import get_data, add_data, del_data
+from sql import get_data, add_data, del_data, update_data
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "static", "data")
 
@@ -32,6 +32,44 @@ def render_page(page_name, **kwargs):
 def index():
     songs = get_data("MATURITA_HOL_SONGS")
     return render_page("index.html", songs=songs)
+
+# --- Profile ---
+@app.route("/profile/<id>")
+def profile(id):
+    users = get_data("MATURITA_HOL_USERS")
+
+    #looks through users to find ID
+    user = next((user for user in users if user['id'] == id), None)
+    return render_template("profile.html", user=user)
+
+@app.route("/update-profile", methods=["POST"])
+def update_profile():
+    user_id = request.form.get("user")
+    name = request.form.get("name")
+    description = request.form.get("description")
+
+    pfpfile = request.files.get("pfp")
+
+    if name == "" or name.isspace():
+        name = "User123"
+
+    if pfpfile:
+        filename = user_id + ".png"
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"] + "/pfp", filename)
+        pfpfile.save(filepath)
+
+        update_data("MATURITA_HOL_USERS", {
+                "username": name,
+                "pfp": f"pfp/{filename}",
+                "description": description
+            }, user_id)
+    else:
+        update_data("MATURITA_HOL_USERS", {
+                "username": name,
+                "description": description
+            }, user_id)
+    
+    return redirect(url_for("profile", id=user_id))
 
 # --- Song Management ---
 
