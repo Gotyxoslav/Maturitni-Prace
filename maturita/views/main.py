@@ -60,7 +60,7 @@ def update_profile():
 
         update_data("MATURITA_HOL_USERS", {
                 "username": name,
-                "pfp": f"pfp/{filename}",
+                "pfp": f"../static/data/pfp/{filename}",
                 "description": description
             }, user_id)
     else:
@@ -70,6 +70,29 @@ def update_profile():
             }, user_id)
     
     return redirect(url_for("profile", id=user_id))
+
+# --- Explore ---
+@app.route('/explore')
+def explore():
+    songs = get_data("MATURITA_HOL_SONGS")
+    albums = get_data("MATURITA_HOL_ALBUMS")
+    return render_template("explore.html", albums=albums, songs=songs)
+
+@app.route("/album/<id>")
+def albums(id):
+    albums = get_data("MATURITA_HOL_ALBUMS")
+    songs = get_data("MATURITA_HOL_SONGS")
+    user = session["user"]
+
+    #tohle projede alba aby to našlo to id
+    album = next((album for album in albums if album['album_id'] == id), None)
+
+    if album == None:
+        return render_template("404.html") 
+
+    return render_template("album.html", album=album, songs=songs, user=user)
+
+
 
 # --- Song Management ---
 
