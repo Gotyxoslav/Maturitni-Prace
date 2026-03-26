@@ -45,3 +45,14 @@ def update_data(table, data, id):
     sql = f"UPDATE {table} SET {set_data} WHERE id = %s"
     mycursor.execute(sql, column_data)
     mydb.commit()
+
+def get_joined_data(table1, table2, key1, key2, condition_column=None, condition_value=None):
+    sql = f"SELECT * FROM {table1} JOIN {table2} ON {table1}.{key1} = {table2}.{key2}" # connects two tables
+
+    if condition_column and condition_value: # condition_column = looks for a specific column (name, id, ...); condition_value = looks for specific values ("john", 123, ...)
+        sql += f" WHERE {condition_column} = %s"
+        mycursor.execute(sql, (condition_value,))
+    else:
+        mycursor.execute(sql)
+        
+    return mycursor.fetchall()

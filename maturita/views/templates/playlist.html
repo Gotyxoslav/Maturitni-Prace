@@ -1,0 +1,88 @@
+<div class="album_albumpage">
+    <div class="cover_albumpage">
+        <img src="{{ playlist.playlistfile }}?v={{ range(1, 100000) | random }}"" class="cover_image" style="height: 150px; width: 150px;"/>
+    </div>
+    <div class="details_albumpage">
+        <p>Playlist</p>
+        <h1 class="album_title_albumpage">{{ playlist.name }}</h1>
+        <p class="album_details_albumpage">
+            <a href="#" hx-get="{{ url_for('profile', id=playlist.author) }}" hx-target="#main-content" hx-push-url="true">
+                {{ playlist.author }} 
+            </a>
+            ♦ {{ songs|length }} songs </p><br>
+        <p class="album_details_albumpage">{{ playlist.description }} </p><br>
+    </div>
+</div>
+{% if playlist.author == user %}
+    <button style="font-size: large;" onclick="showEditPlaylistDialog()">Edit</button>
+    <form hx-post="{{ url_for('del_playlist', id=playlist.id) }}" onclick="return confirm('Are you sure you want to delete this playlist?')" hx-encoding="multipart/form-data" hx-target="#main-content">
+        <button style="font-size: large;">Delete</button>
+    </form>
+{% endif %}
+
+<div class="scrollmenu_albumpage">
+    {% for song in songs %}
+        <div class="song">
+            <div class="place_albumpage">
+                <p>{{ loop.index }}.</p>
+            </div>
+            <div class="song_details_albumpage">
+                <a onclick="play_song('../static/data/{{ song.songfile }}')" class="SP_MP"><b class="playlist_popis">{{ song.title }}</b></a>
+                <button style="font-size: large;" onclick="showPlaylistDialog('{{ song.song_id }}')">+</button><br>
+                <b class="popisky_play">{{ song.author }}</b>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<div>
+    <dialog id="playlist-dialog" class="make-playlist">
+        <form hx-post="{{ url_for('add_to_playlist') }}" hx-encoding="multipart/form-data" hx-target="#main-content">
+            <label for="playlist">Playlist:</label>
+            <select name="playlist" required class="selecter">
+                {% for playlist in playlists %}
+                    {% if playlist.author == user %}
+                        <option value="{{ playlist.id }}">{{ playlist.name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select><br>
+            <input type="hidden" name="song" id="song-id-input">
+            <input type="submit" value="Add">
+        </form>
+        <button onclick="closePlaylistDialog()">Cancel</button>
+    </dialog>
+</div>
+
+<div>
+    <dialog id="edit-playlist-dialog" class="make-playlist">
+        <form hx-post="{{ url_for('update_playlist') }}" hx-encoding="multipart/form-data" hx-target="#main-content" onsubmit="closeEditPlaylistDialog()">
+            <input type="file" name="playlistfile" accept=".png, .jpg, .jpeg"><br>
+            <label for="">Name:</label>
+            <input type="text" name="name" value="{{ playlist.name }}"/><br>
+            <label for ="">Description:</label>
+            <input type="text" name="description" value="{{ playlist.description }}"/><br>
+            <input type="hidden" name="playlist" value="{{ playlist.id }}">
+            <input type="submit" value="Edit">
+        </form>
+        <button onclick=closeEditPlaylistDialog()>Cancel</button>
+    </dialog>
+</div>
+
+<script>
+    function showPlaylistDialog(songId) {
+        document.getElementById("song-id-input").value = songId;
+        document.getElementById("playlist-dialog").showModal();
+    }
+
+    function showEditPlaylistDialog(){
+        document.getElementById("edit-playlist-dialog").showModal();
+    }
+
+    function closePlaylistDialog() {
+        document.getElementById("playlist-dialog").close();
+    }
+
+    function closeEditPlaylistDialog() {
+        document.getElementById("edit-playlist-dialog").close();
+    }
+</script>

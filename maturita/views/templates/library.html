@@ -1,0 +1,49 @@
+<title>Toney | Library</title>
+<div>
+    <button onclick=showPlaylistDialog()>Add Playlist</button>
+
+    <br><h1>Playlists</h1><br>
+    <div>
+        <table> 
+            <tr>
+                {% for playlist in playlists %}
+                    {% if playlist.author == user %}
+                        {% set has_playlist = true %}
+                        <th>
+                            <div>
+                                <a href="#" class="cover_image" hx-get="{{ url_for('playlists', playlist_id=playlist.id) }}" hx-target="#main-content" hx-push-url="true">
+                                    <img src="{{ playlist.playlistfile }}" style="height: 150px; width: 150px;" />
+                                    <p>{{ playlist.name }}</p>
+                                </a>
+                            </div>
+                        </th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </table><br>
+    </div>
+</div>
+
+<div>
+    <dialog id="playlist-dialog">
+        <form hx-post="{{ url_for('make_playlist') }}" hx-target="#main-content" hx-encoding="multipart/form-data">
+            <input type="file" name="playlistfile" accept=".png, .jpg, .jpeg"><br>
+            <label for="">Name:</label>
+            <input type="text" name="name"/><br>
+            <label for ="">Description:</label>
+            <input type="text" name="description"/><br>
+            <input type="submit" value="Add">
+        </form>
+        <button onclick=closePlaylistDialog()>Cancel</button>
+    </dialog>
+</div>
+
+<script>
+    function showPlaylistDialog() {
+        document.getElementById("playlist-dialog").showModal();
+    }
+
+    function closePlaylistDialog() {
+        document.getElementById("playlist-dialog").close();
+    }
+</script>

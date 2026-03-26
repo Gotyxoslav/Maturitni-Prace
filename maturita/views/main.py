@@ -6,7 +6,7 @@ import json
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
-from sql import get_data, add_data, del_data, update_data
+from sql import get_data, add_data, del_data, update_data, get_joined_data
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "static", "data")
 
@@ -33,6 +33,141 @@ def index():
     songs = get_data("MATURITA_HOL_SONGS")
     return render_page("index.html", songs=songs)
 
+# --- Explore ---
+@app.route('/library')
+def library():
+    if "user" in session:
+        user = session["user"]
+        playlists = get_data("MATURITA_HOL_PLAYLISTS")
+        return render_page("library.html", user=user, playlists=playlists)
+    else:
+        return redirect(url_for("login"))
+    
+@app.route("/playlist/<playlist_id>")
+def playlists(playlist_id):
+    playlists = get_data("MATURITA_HOL_PLAYLISTS")
+    user = session["user"]
+    
+    #tohle projede playlisty aby to našlo to id
+    playlist = next((playlist for playlist in playlists if playlist['id'] == playlist_id), None)
+
+    songs = get_joined_data(
+        table1 = "MATURITA_HOL_SONGS", 
+        table2 = "MATURITA_HOL_PLAYLIST_SONGS", 
+        key1 = "song_id",
+        key2 = "song_id",
+        condition_column = "playlist_id", 
+        condition_value = playlist_id 
+    )
+
+    return render_page("playlist.html", playlist=playlist, user=user, songs=songs, playlists=playlists)
+
+
+@app.route('/make-playlist', methods=["POST"])
+def make_playlist():
+    name = request.form.get("name")
+    author = session.get("user")
+    description = request.form.get("description")
+
+    playlist_id = generate_id()
+
+    if name == "" or name.isspace():
+        name = "My playlist"
+
+    playlistfile = request.files.get("playlistfile")
+    if playlistfile and playlistfile.filename.endswith((".png", ".jpg",".jpeg")):
+        filename = playlist_id + ".png"
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"] + "/playlists", filename)
+        playlistfile.save(filepath)
+
+        add_data("MATURITA_HOL_PLAYLISTS", {
+            "id": playlist_id,
+            "author": author,
+            "name": name,
+            "description": description,
+            "playlistfile": f"../static/data/playlists/{filename}"
+        })
+
+    else:
+        add_data("MATURITA_HOL_PLAYLISTS", {
+            "id": playlist_id,
+            "author": author,
+            "name": name,
+            "description": description
+        })
+
+    return redirect(url_for("library"))
+
+@app.route('/update-playlist', methods=["POST"])
+def update_playlist():
+    playlist_id = request.form.get("playlist")
+    name = request.form.get("name")
+    description = request.form.get("description")
+
+    if not name or name.isspace():
+        name = "My playlist"
+
+    playlistfile = request.files.get("playlistfile")
+
+    if playlistfile and playlistfile.filename != "" and playlistfile.filename.endswith((".png", ".jpg",".jpeg")):
+        filename = playlist_id + ".png"
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], "playlists", filename)
+        playlistfile.save(filepath)
+
+        update_data("MATURITA_HOL_PLAYLISTS", {
+            "name": name,
+            "description": description,
+            "playlistfile": f"../static/data/playlists/{filename}"
+        }, playlist_id)
+        
+    else:
+        update_data("MATURITA_HOL_PLAYLISTS", {
+            "name": name,
+            "description": description
+        }, playlist_id)
+
+    return redirect(url_for("playlists", playlist_id=playlist_id))
+
+@app.route('/del-playlist', methods=["POST"])
+def del_playlist():
+    id = request.args.get("id")
+
+    filename = id + ".png"
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], "playlists", filename)
+    if os.path.exists(filepath):
+        os.remove(filepath)
+
+    del_data("MATURITA_HOL_PLAYLISTS", {
+        "id": id
+    })
+
+    del_data("MATURITA_HOL_PLAYLIST_SONGS", {
+        "playlist_id": id
+    })
+
+    return redirect(url_for("library"))
+
+@app.route('/add-to-playlist', methods=["POST"])
+def add_to_playlist():
+    playlist_id = request.form.get("playlist")
+    song_id = request.form.get("song")
+
+    song_playlists = get_data("MATURITA_HOL_PLAYLIST_SONGS")
+
+    placement = 1 # Finds the highest placement number currently in use
+    for relation in song_playlists:
+        if relation.get("playlist_id") == playlist_id:
+            if relation.get("placement", 0) >= placement:
+                placement = relation.get("placement") + 1
+
+    add_data("MATURITA_HOL_PLAYLIST_SONGS", {
+        "playlist_id": playlist_id,
+        "song_id": song_id,
+        "placement": placement
+    })
+
+    return redirect(request.referrer)
+
 # --- Profile ---
 @app.route("/profile/<id>")
 def profile(id):
@@ -40,7 +175,7 @@ def profile(id):
 
     #looks through users to find ID
     user = next((user for user in users if user['id'] == id), None)
-    return render_template("profile.html", user=user)
+    return render_page("profile.html", user=user)
 
 @app.route("/update-profile", methods=["POST"])
 def update_profile():
@@ -76,21 +211,22 @@ def update_profile():
 def explore():
     songs = get_data("MATURITA_HOL_SONGS")
     albums = get_data("MATURITA_HOL_ALBUMS")
-    return render_template("explore.html", albums=albums, songs=songs)
+    return render_page("explore.html", albums=albums, songs=songs)
 
 @app.route("/album/<id>")
 def albums(id):
     albums = get_data("MATURITA_HOL_ALBUMS")
     songs = get_data("MATURITA_HOL_SONGS")
+    playlists = get_data("MATURITA_HOL_PLAYLISTS")
     user = session["user"]
 
     #tohle projede alba aby to našlo to id
     album = next((album for album in albums if album['album_id'] == id), None)
 
     if album == None:
-        return render_template("404.html") 
+        return render_page("404.html") 
 
-    return render_template("album.html", album=album, songs=songs, user=user)
+    return render_page("album.html", album=album, songs=songs, user=user, playlists=playlists)
 
 
 
@@ -234,7 +370,7 @@ def register():
         })
         return redirect(url_for("login"))
 
-    return render_template("register.html")
+    return render_page("register.html")
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
@@ -253,9 +389,9 @@ def login():
                 except VerifyMismatchError: # without this, it would spit out an error
                     pass
 
-        return render_template("login.html", error="Incorrect e-mail or password")
+        return render_page("login.html", error="Incorrect e-mail or password")
 
-    return render_template("login.html")
+    return render_page("login.html")
 
 @app.route("/logout", methods=["POST", "GET"])
 def logout():

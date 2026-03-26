@@ -2,7 +2,7 @@
 
 <div style="display: flex; align-items: center; gap: 20px;">
     
-    <img src="{{ user.pfp }}" alt="Profile Picture" class="cover_image" style="height: 150px; width: 150px;">
+    <img src="{{ user.pfp }}?v={{ range(1, 100000) | random }}" alt="Profile Picture" class="cover_image" style="height: 150px; width: 150px;">  <!-- ?v={{ range(1, 100000) | random }} basically means: ?v=123 is a variable only the website saves but sees it as a different thing, basically if img.png?v=123 became img.png?v=183, it would save the image again, meaning if the picture got updated, it would instantly show thanks to the random-->
         
     <div>
         <p style="margin: 5px 0 0 0;">Profile</p>
