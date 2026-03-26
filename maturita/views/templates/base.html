@@ -21,16 +21,48 @@
     </div>
 
     <div style="position: fixed; bottom: 0; left: 0; width: 100%; background: #1a1a1a; border-top: 1px solid #333; padding: 10px; z-index: 1000;">
-        <audio id="global-player" controls style="width: 100%;">
+        <audio id="player" controls style="width: 100%;" onended="playNextInQueue()">
             <source src="" type="audio/mpeg">
         </audio>
     </div>
 
     <script>
+        // onended means when audio finished playing
+        const player = document.getElementById('player');
+
         function play_song(songfile) {
-            var player = document.getElementById('global-player');
+            // gets the audio file and plays it
             player.src = songfile;
             player.play();
+        }
+
+        function addToQueue(songfile) {
+            window.musicQueue.push(songfile);
+            // player.paused = nothing is playing, !player.src = nothing is loaded, player.src.endsWith(window.location.host + "/") basically checks in case it's something like "http://localhost:5000/" and not "somesong.mp3"
+            if (player.paused && (!player.src || player.src.endsWith(window.location.host + "/"))) {
+                playNextInQueue();
+            }
+        }
+
+        function playNextInQueue() {
+            if (window.musicQueue.length > 0) {
+                let nextSong = window.musicQueue.shift(); 
+                player.src = nextSong;
+                player.play();
+            } else {
+                player.src = ""; 
+            }
+        }
+
+        function startQueue(songArray, startIndex) {
+            window.musicQueue = [];
+            
+            play_song(songArray[startIndex]); 
+            
+            // adds all songs afterwards in the queue, basically if we chose song 4, it starts from 5 till the final song and adds those to the queue
+            for (let i = startIndex + 1; i < songArray.length; i++) {
+                window.musicQueue.push(songArray[i]);
+            }
         }
     </script>
 

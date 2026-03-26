@@ -270,7 +270,7 @@ def add_album():
             "title": title,
             "author": author,
             "release_date": release,
-            "albumfile": f"albums/{filename}"
+            "albumfile": f"../static/data/albums/{filename}"
         })
 
         return redirect(url_for("index"))

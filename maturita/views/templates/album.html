@@ -1,5 +1,3 @@
-{% include "navbar.html" %}
-
 {% set ns = namespace(album_songs=0) %}
 {% for song in songs %}
     {% if album.album_id == song.album %}
@@ -29,9 +27,11 @@
                         <p>{{ ns.album_song_place }}.</p>
                     </div>
                     <div class="song_details_albumpage">
-                        <a onclick="play_song('../static/data/{{ song.songfile }}')" class="SP_MP"><b class="playlist_popis">{{ song.title }}</b></a> 
+                        <!-- -1 because jinja starts counting at 1, while java starts at 0 -->
+                        <a onclick="startQueue(window.albumList, {{ ns.album_song_place - 1 }})" class="SP_MP"><b class="playlist_popis">{{ song.title }}</b></a>
                         
                         <button style="font-size: large;" onclick="showPlaylistDialog('{{ song.song_id }}')">+</button><br>
+                        <button onclick="addToQueue('../static/data/{{ song.songfile }}')">Add to queue</button><br>
                         
                         <b class="popisky_play">{{ song.author }}</b>
                     </div>
@@ -61,6 +61,14 @@
 </div>
 
 <script>
+    // this basically makes a list out of all the songs in this album
+    window.albumList = [
+        {% for song in songs %}
+            {% if album.album_id == song.album %}
+                "../static/data/{{ song.songfile }}",
+            {% endif %}
+        {% endfor %}
+    ];
     function showPlaylistDialog(songId) {
         document.getElementById("song-id-input").value = songId;
         document.getElementById("playlist-dialog").showModal();

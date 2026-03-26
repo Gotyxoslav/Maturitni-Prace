@@ -1,6 +1,6 @@
 <div class="album_albumpage">
     <div class="cover_albumpage">
-        <img src="{{ playlist.playlistfile }}?v={{ range(1, 100000) | random }}"" class="cover_image" style="height: 150px; width: 150px;"/>
+        <img src="{{ playlist.playlistfile }}?v={{ range(1, 100000) | random }}" class="cover_image" style="height: 150px; width: 150px; object-fit: cover;"/>
     </div>
     <div class="details_albumpage">
         <p>Playlist</p>
@@ -13,6 +13,7 @@
         <p class="album_details_albumpage">{{ playlist.description }} </p><br>
     </div>
 </div>
+
 {% if playlist.author == user %}
     <button style="font-size: large;" onclick="showEditPlaylistDialog()">Edit</button>
     <form hx-post="{{ url_for('del_playlist', id=playlist.id) }}" onclick="return confirm('Are you sure you want to delete this playlist?')" hx-encoding="multipart/form-data" hx-target="#main-content">
@@ -27,8 +28,11 @@
                 <p>{{ loop.index }}.</p>
             </div>
             <div class="song_details_albumpage">
-                <a onclick="play_song('../static/data/{{ song.songfile }}')" class="SP_MP"><b class="playlist_popis">{{ song.title }}</b></a>
+                <!-- note: loop.index is just which loop we are in (so like if we're at the 4th song, it's 4) -->
+                <a onclick="startQueue(window.playlistList, {{ loop.index - 1 }})" class="SP_MP"><b class="playlist_popis">{{ song.title }}</b></a>
+                
                 <button style="font-size: large;" onclick="showPlaylistDialog('{{ song.song_id }}')">+</button><br>
+                <button onclick="addToQueue('../static/data/{{ song.songfile }}')">Add to queue</button><br>
                 <b class="popisky_play">{{ song.author }}</b>
             </div>
         </div>
@@ -69,6 +73,12 @@
 </div>
 
 <script>
+    window.playlistList = [
+        {% for song in songs %}
+            "../static/data/{{ song.songfile }}",
+        {% endfor %}
+    ];
+
     function showPlaylistDialog(songId) {
         document.getElementById("song-id-input").value = songId;
         document.getElementById("playlist-dialog").showModal();

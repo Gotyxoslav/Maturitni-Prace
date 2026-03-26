@@ -1,8 +1,0 @@
-[
-  {
-    "username": "username",
-    "email": "email@email.cz",
-    "password": "$argon2id$v=19$m=65536,t=3,p=4$SMX8ifhGFlbMV/DuYTxcvQ$bUFp0e+wDQWBgqyDPzbHTZkrH5i8gXK8IVsP+dQsqZ0",
-    "id": "7467fb7f-45a6-4069-a292-cef7615c0ebe"
-  }
-]
