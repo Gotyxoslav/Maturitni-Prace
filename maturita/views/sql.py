@@ -56,3 +56,12 @@ def get_joined_data(table1, table2, key1, key2, condition_column=None, condition
         mycursor.execute(sql)
         
     return mycursor.fetchall()
+
+def update_specific_data(table, data, id_column, id_value):
+    set_data = ", ".join([f"{key} = %s" for key in data.keys()])
+    column_data = tuple(data.values()) + (id_value,)
+    
+    sql = f"UPDATE {table} SET {set_data} WHERE {id_column} = %s"
+    
+    mycursor.execute(sql, column_data)
+    mydb.commit()

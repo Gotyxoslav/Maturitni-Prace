@@ -6,7 +6,7 @@ import json
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
-from sql import get_data, add_data, del_data, update_data, get_joined_data
+from sql import get_data, add_data, del_data, update_data, get_joined_data, update_specific_data
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "static", "data")
 
@@ -323,7 +323,35 @@ def add_album():
         return redirect(url_for("index"))
     else:
         return redirect(url_for("manage_song"), error="Incorrect album file, use .png, .jpg or .jpeg")
+
+@app.route('/edit-album', methods=["POST"])
+def edit_album():
+    album_id = request.form.get("id")
+    title = request.form.get("title")
+    release = request.form.get("release")
     
+    albumfile = request.files.get("albumfile")
+    
+    # If the user uploaded a file
+    if albumfile and albumfile.filename != "" and albumfile.filename.endswith((".png", ".jpg", ".jpeg")):
+        filename = album_id + ".png"
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"] + "/albums", filename)
+        albumfile.save(filepath)
+        
+        update_specific_data("MATURITA_HOL_ALBUMS", {
+            "title": title,
+            "release_date": release,
+            "albumfile": f"../static/data/albums/{filename}"
+        }, "album_id", album_id)
+        
+    else:
+        update_specific_data("MATURITA_HOL_ALBUMS", {
+            "title": title,
+            "release_date": release
+        }, "album_id", album_id)
+
+    return redirect(url_for("manage_song"))
+
 @app.route('/del-album', methods=["POST"])
 def del_album():
     id = request.form.get("id")
@@ -376,7 +404,35 @@ def add_song():
         return redirect(url_for("index"))
     else:
         return redirect(url_for("manage_song"), error="Incorrect audio file, use .mp3")
+
+@app.route('/edit-song', methods=["POST"])
+def edit_song():
+    song_id = request.form.get("id")
+    title = request.form.get("title")
+    album = request.form.get("album")
     
+    songfile = request.files.get("songfile")
+    
+    # if the user uploaded a mp3
+    if songfile and songfile.filename != "" and songfile.filename.endswith(".mp3"):
+        filename = song_id + ".mp3"
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"] + "/songs", filename)
+        songfile.save(filepath)
+        
+        update_specific_data("MATURITA_HOL_SONGS", {
+            "title": title,
+            "album": album,
+            "songfile": f"songs/{filename}"
+        }, "song_id", song_id)
+        
+    else:
+        update_specific_data("MATURITA_HOL_SONGS", {
+            "title": title,
+            "album": album
+        }, "song_id", song_id)
+
+    return redirect(url_for("manage_song"))
+
 @app.route('/del-song', methods=["POST"])
 def del_song():
     id = request.form.get("id")
