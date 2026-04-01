@@ -11,7 +11,9 @@
                             <img src="{{ album.albumfile }}" class="cover_image" style="height: 150px; width: 150px;"/>
                             <p>{{ album.title }}</p>
                         </a>
-                        <p>{{ album.author }}</p>
+                        <a href="#" hx-get="{{ url_for('profile', id=album.author) }}" hx-target="#main-content" hx-push-url="true">
+                            {{ names[album.author] }} 
+                        </a>
                     </div><br>
                 </th>
                 {% endfor %}
@@ -35,7 +37,10 @@
                             </a>
                             <div>
                                 <a onclick="play_song('../static/data/{{ song.songfile }}')"><b class="playlist_popis">{{ song.title }}</b></a><br>
-                                <b>{{ song.author }} ♦ {{ album.title }}</b>
+                                <b>
+                                    <a href="#" hx-get="{{ url_for('profile', id=song.author) }}" hx-target="#main-content" hx-push-url="true">
+                                        {{ names[song.author] }} 
+                                    </a> ♦ {{ album.title }}</b>
                             </div>
                         {% endif %}
                     {% endfor %}

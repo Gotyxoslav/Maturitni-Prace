@@ -47,6 +47,10 @@ def library():
 def playlists(playlist_id):
     playlists = get_data("MATURITA_HOL_PLAYLISTS")
     user = session["user"]
+
+    # makes a dictionary where each id coresponds to an username
+    users = get_data("MATURITA_HOL_USERS") 
+    names = {u["id"]: u["username"] for u in users}
     
     #tohle projede playlisty aby to našlo to id
     playlist = next((playlist for playlist in playlists if playlist['id'] == playlist_id), None)
@@ -60,7 +64,7 @@ def playlists(playlist_id):
         condition_value = playlist_id 
     )
 
-    return render_page("playlist.html", playlist=playlist, user=user, songs=songs, playlists=playlists)
+    return render_page("playlist.html", playlist=playlist, user=user, songs=songs, playlists=playlists, names=names)
 
 
 @app.route('/make-playlist', methods=["POST"])
@@ -168,6 +172,42 @@ def add_to_playlist():
 
     return redirect(request.referrer)
 
+@app.route('/del-from-playlist', methods=["POST"])
+def del_from_playlist():
+    id = request.args.get("id")
+    placement = int(request.args.get("placement"))
+
+    playlist_songs = get_joined_data(
+        "MATURITA_HOL_PLAYLIST_SONGS", 
+        "MATURITA_HOL_SONGS", 
+        "song_id", 
+        "song_id", 
+        "playlist_id", 
+        id
+    )
+
+    # sorts playlist by placement
+    playlist_songs = sorted(playlist_songs, key=lambda x: x.get("placement", 0))
+
+    del_data("MATURITA_HOL_PLAYLIST_SONGS", {"playlist_id": id})
+
+    new_placement = 1
+    
+    for song in playlist_songs:
+        # if it's the song we deleted, it ignores it
+        if int(song["placement"]) == placement:
+            continue 
+        
+        # Otherwise, save it back with the new placement
+        add_data("MATURITA_HOL_PLAYLIST_SONGS", {
+            "playlist_id": id,
+            "song_id": song["song_id"],
+            "placement": new_placement
+        })
+        new_placement += 1
+
+    return redirect(url_for("playlists", playlist_id=id))
+
 # --- Profile ---
 @app.route("/profile/<id>")
 def profile(id):
@@ -211,7 +251,11 @@ def update_profile():
 def explore():
     songs = get_data("MATURITA_HOL_SONGS")
     albums = get_data("MATURITA_HOL_ALBUMS")
-    return render_page("explore.html", albums=albums, songs=songs)
+
+    users = get_data("MATURITA_HOL_USERS") 
+    names = {u["id"]: u["username"] for u in users}
+
+    return render_page("explore.html", albums=albums, songs=songs, names=names)
 
 @app.route("/album/<id>")
 def albums(id):
@@ -220,13 +264,16 @@ def albums(id):
     playlists = get_data("MATURITA_HOL_PLAYLISTS")
     user = session["user"]
 
+    users = get_data("MATURITA_HOL_USERS") 
+    names = {u["id"]: u["username"] for u in users}
+
     #tohle projede alba aby to našlo to id
     album = next((album for album in albums if album['album_id'] == id), None)
 
     if album == None:
         return render_page("404.html") 
 
-    return render_page("album.html", album=album, songs=songs, user=user, playlists=playlists)
+    return render_page("album.html", album=album, songs=songs, user=user, playlists=playlists, names=names)
 
 
 

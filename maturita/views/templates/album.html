@@ -4,6 +4,7 @@
         {% set ns.album_songs = ns.album_songs + 1 %}
     {% endif %}
 {% endfor %}
+<title>Toney | {{ album.title }}</title>
 
 <div class="nadpisy">
     <div class="album_albumpage">
@@ -13,7 +14,11 @@
         <div class="details_albumpage">
             <p>Album</p>
             <h1 class="album_title_albumpage">{{ album.title }}</h1>
-            <p class="album_details_albumpage">{{ album.author }} ♦ {{ album.release_date }} ♦ {{ ns.album_songs }} songs</p>
+            <p class="album_details_albumpage">
+                <a href="#" hx-get="{{ url_for('profile', id=album.author) }}" hx-target="#main-content" hx-push-url="true">
+                    {{ names[album.author] }} 
+                </a> 
+                ♦ {{ album.release_date }} ♦ {{ ns.album_songs }} songs</p>
         </div>
     </div>
     

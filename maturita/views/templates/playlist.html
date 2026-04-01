@@ -1,3 +1,5 @@
+<title>Toney | {{ playlist.name }}</title>
+
 <div class="album_albumpage">
     <div class="cover_albumpage">
         <img src="{{ playlist.playlistfile }}?v={{ range(1, 100000) | random }}" class="cover_image" style="height: 150px; width: 150px; object-fit: cover;"/>
@@ -7,7 +9,7 @@
         <h1 class="album_title_albumpage">{{ playlist.name }}</h1>
         <p class="album_details_albumpage">
             <a href="#" hx-get="{{ url_for('profile', id=playlist.author) }}" hx-target="#main-content" hx-push-url="true">
-                {{ playlist.author }} 
+                {{ names[playlist.author] }} 
             </a>
             ♦ {{ songs|length }} songs </p><br>
         <p class="album_details_albumpage">{{ playlist.description }} </p><br>
@@ -32,6 +34,11 @@
                 <a onclick="startQueue(window.playlistList, {{ loop.index - 1 }})" class="SP_MP"><b class="playlist_popis">{{ song.title }}</b></a>
                 
                 <button style="font-size: large;" onclick="showPlaylistDialog('{{ song.song_id }}')">+</button><br>
+                {% if playlist.author == user %}
+                    <form hx-post="{{ url_for('del_from_playlist', id=playlist.id, placement=loop.index) }}" onclick="return confirm('Are you sure you want to delete {{ song.title }} from the playlist?')" hx-encoding="multipart/form-data" hx-target="#main-content">
+                        <button style="font-size: large;">-</button>
+                    </form>
+                {% endif %}
                 <button onclick="addToQueue('../static/data/{{ song.songfile }}')">Add to queue</button><br>
                 <b class="popisky_play">{{ song.author }}</b>
             </div>
