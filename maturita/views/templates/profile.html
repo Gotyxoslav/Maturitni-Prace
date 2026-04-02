@@ -1,31 +1,55 @@
 <title>Toney | {{ user.username }}</title>
 
-<div style="display: flex; align-items: center; gap: 20px;">
-    
-    <img src="{{ user.pfp }}?v={{ range(1, 100000) | random }}" alt="Profile Picture" class="cover_image" style="height: 150px; width: 150px;">  <!-- ?v={{ range(1, 100000) | random }} basically means: ?v=123 is a variable only the website saves but sees it as a different thing, basically if img.png?v=123 became img.png?v=183, it would save the image again, meaning if the picture got updated, it would instantly show thanks to the random-->
+<div class="page-header">
+    <img src="{{ user.pfp }}?v={{ range(1, 100000) | random }}" alt="Profile Picture" class="cover_image" style="height: 200px; width: 200px;">  
         
-    <div>
-        <p style="margin: 5px 0 0 0;">Profile</p>
-        <h1 style="margin: 0;">{{ user.username }}</h1>
+    <div class="header-details">
+        <p>Profile</p>
+        <h1>{{ user.username }}</h1>
         {% if user["role"] == 0 %}
-        <p>User</p>
+            <p>User</p>
         {% elif user["role"] == 1 %}
-        <p>Admin</p>
+            <p>Admin</p>
         {% elif user["role"] == 2 %}
-        <p>Creator</p>
+            <p>Creator</p>
         {% endif %}
 
         {% if user.id == session["user"] %}
-            <button style="font-size: large;" onclick="showEditUserDialog()">Edit</button>
+            <div style="margin-top: 15px;">
+                <button class="action-btn" onclick="showEditUserDialog()">Edit</button>
+            </div>
         {% endif %}
-
     </div>
 </div>
 
+<div style="color: white;">
+    <p>{{ user.description }}</p>
+</div>
 
-<p>{{ user.description }}</p>
+{% set ns = namespace(has_playlists=false) %}
+{% for playlist in playlists %}
+    {% if playlist.author == user.id %}
+        {% set ns.has_playlists = true %}
+    {% endif %}
+{% endfor %}
 
-
+{% if ns.has_playlists %}
+<div style="color: white; margin-top: 40px;">
+    <h2>Playlists</h2><br>
+    <div class="media-scroller">
+        {% for playlist in playlists %}
+            {% if playlist.author == user.id %}
+                <div class="media-card">
+                    <a href="#" hx-get="{{ url_for('playlists', playlist_id=playlist.id) }}" hx-target="#main-content" hx-push-url="true" style="text-decoration: none;">
+                        <img src="{{ playlist.playlistfile }}" class="cover_image" style="height: 150px; width: 150px; object-fit: cover;" />
+                        <p>{{ playlist.name }}</p>
+                    </a>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 
 <div>
     <dialog id="edit-user-dialog">
@@ -36,9 +60,9 @@
             <label for ="">Description:</label>
             <input type="text" name="description" value="{{ user.description }}"/><br>
             <input type="hidden" name="user" value="{{ user.id }}">
-            <input type="submit" value="Edit">
+            <input type="submit" value="Edit" class="action-btn" style="margin-top: 10px;">
         </form>
-        <button onclick="closeEditUserDialog()">Cancel</button>
+        <button class="action-btn" onclick="closeEditUserDialog()" style="margin-top: 10px;">Cancel</button>
     </dialog>
 </div>
 

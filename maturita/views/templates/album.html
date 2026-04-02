@@ -6,39 +6,43 @@
 {% endfor %}
 <title>Toney | {{ album.title }}</title>
 
-<div class="nadpisy">
-    <div class="album_albumpage">
+<div>
+    <div class="page-header">
         <div class="cover_albumpage">
-            <img class="album_cover_albumpage cover_image" src="{{ album.albumfile }}" style="height: 150px; width: 150px; object-fit: cover;"/>
+            <img class="cover_image" src="{{ album.albumfile }}" style="height: 200px; width: 200px;"/>
         </div>
-        <div class="details_albumpage">
+        <div class="header-details">
             <p>Album</p>
-            <h1 class="album_title_albumpage">{{ album.title }}</h1>
-            <p class="album_details_albumpage">
+            <h1>{{ album.title }}</h1>
+            <p>
                 <a href="#" hx-get="{{ url_for('profile', id=album.author) }}" hx-target="#main-content" hx-push-url="true">
                     {{ names[album.author] }} 
                 </a> 
-                ♦ {{ album.release_date }} ♦ {{ ns.album_songs }} songs</p>
+                ♦ {{ album.release_date }} ♦ {{ ns.album_songs }} songs
+            </p>
         </div>
     </div>
     
-    <div class="scrollmenu_albumpage">
+    <div>
         {% set ns = namespace(album_song_place=0) %}
         {% for song in songs %}
             {% if album.album_id == song.album %}
-                <div class="song">
-                    <div class="place_albumpage">
+                <div class="list-row">
+                    <div class="list-index">
                         {% set ns.album_song_place = ns.album_song_place + 1 %}
-                        <p>{{ ns.album_song_place }}.</p>
+                        <p>{{ ns.album_song_place }}</p>
                     </div>
-                    <div class="song_details_albumpage">
-                        <!-- -1 because jinja starts counting at 1, while java starts at 0 -->
-                        <a onclick="startQueue(window.albumList, {{ ns.album_song_place - 1 }})" class="SP_MP"><b class="playlist_popis">{{ song.title }}</b></a>
+                    
+                    <div class="list-details">
+                        <div class="list-text">
+                            <a onclick="startQueue(window.albumList, {{ ns.album_song_place - 1 }})"><b>{{ song.title }}</b></a>
+                            <b class="list-author">{{ names[song.author] }}</b>
+                        </div>
                         
-                        <button style="font-size: large;" onclick="showPlaylistDialog('{{ song.song_id }}')">+</button><br>
-                        <button onclick="addToQueue('../static/data/{{ song.songfile }}')">Add to queue</button><br>
-                        
-                        <b class="popisky_play">{{ song.author }}</b>
+                        <div class="list-actions">
+                            <button class="action-btn" onclick="addToQueue('/static/data/{{ song.songfile }}')">+ Queue</button>
+                            <button class="action-btn" onclick="showPlaylistDialog('{{ song.song_id }}')">+ Playlist</button>
+                        </div>
                     </div>
                 </div>                   
             {% endif %}
@@ -57,9 +61,9 @@
                     {% endfor %}
                 </select><br>
                 <input type="hidden" name="song" id="song-id-input">
-                <input type="submit" value="Add">
+                <input type="submit" value="Add" class="action-btn" style="margin-top: 10px;">
             </form>
-            <button onclick="closePlaylistDialog()">Cancel</button>
+            <button class="action-btn" onclick="closePlaylistDialog()" style="margin-top: 10px;">Cancel</button>
         </dialog>
     </div>
 
@@ -70,7 +74,7 @@
     window.albumList = [
         {% for song in songs %}
             {% if album.album_id == song.album %}
-                "../static/data/{{ song.songfile }}",
+                "/static/data/{{ song.songfile }}",
             {% endif %}
         {% endfor %}
     ];

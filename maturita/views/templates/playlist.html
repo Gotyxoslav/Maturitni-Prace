@@ -1,46 +1,56 @@
 <title>Toney | {{ playlist.name }}</title>
 
-<div class="album_albumpage">
+<div class="page-header">
     <div class="cover_albumpage">
-        <img src="{{ playlist.playlistfile }}?v={{ range(1, 100000) | random }}" class="cover_image" style="height: 150px; width: 150px; object-fit: cover;"/>
+        <img src="{{ playlist.playlistfile }}?v={{ range(1, 100000) | random }}" class="cover_image" style="height: 200px; width: 200px;"/>
     </div>
-    <div class="details_albumpage">
+    <div class="header-details">
         <p>Playlist</p>
-        <h1 class="album_title_albumpage">{{ playlist.name }}</h1>
-        <p class="album_details_albumpage">
+        <h1>{{ playlist.name }}</h1>
+        <p>{{ playlist.description }}</p>
+        <p>
             <a href="#" hx-get="{{ url_for('profile', id=playlist.author) }}" hx-target="#main-content" hx-push-url="true">
                 {{ names[playlist.author] }} 
             </a>
-            ♦ {{ songs|length }} songs </p><br>
-        <p class="album_details_albumpage">{{ playlist.description }} </p><br>
+            ♦ {{ songs|length }} songs 
+        </p>
+        
+        {% if playlist.author == user %}
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button class="action-btn" onclick="showEditPlaylistDialog()">Edit</button>
+                <form hx-post="{{ url_for('del_playlist', id=playlist.id) }}" onclick="return confirm('Delete this playlist?')" hx-target="#main-content" style="margin: 0;">
+                    <button class="action-btn" style="color: #ff4d4d; border-color: #ff4d4d;">Delete</button>
+                </form>
+            </div>
+        {% endif %}
     </div>
 </div>
 
-{% if playlist.author == user %}
-    <button style="font-size: large;" onclick="showEditPlaylistDialog()">Edit</button>
-    <form hx-post="{{ url_for('del_playlist', id=playlist.id) }}" onclick="return confirm('Are you sure you want to delete this playlist?')" hx-encoding="multipart/form-data" hx-target="#main-content">
-        <button style="font-size: large;">Delete</button>
-    </form>
-{% endif %}
+<br>
 
-<div class="scrollmenu_albumpage">
+<div>
     {% for song in songs %}
-        <div class="song">
-            <div class="place_albumpage">
-                <p>{{ loop.index }}.</p>
+        <div class="list-row">
+            <div class="list-index">
+                <p>{{ loop.index }}</p>
             </div>
-            <div class="song_details_albumpage">
-                <!-- note: loop.index is just which loop we are in (so like if we're at the 4th song, it's 4) -->
-                <a onclick="startQueue(window.playlistList, {{ loop.index - 1 }})" class="SP_MP"><b class="playlist_popis">{{ song.title }}</b></a>
+            
+            <div class="list-details">
+                <div class="list-text">
+                    <a onclick="startQueue(window.playlistList, {{ loop.index - 1 }})"><b>{{ song.title }}</b></a>
+                    <b class="list-author">{{ names[song.author] }}</b>
+                </div>
                 
-                <button style="font-size: large;" onclick="showPlaylistDialog('{{ song.song_id }}')">+</button><br>
-                {% if playlist.author == user %}
-                    <form hx-post="{{ url_for('del_from_playlist', id=playlist.id, placement=loop.index) }}" onclick="return confirm('Are you sure you want to delete {{ song.title }} from the playlist?')" hx-encoding="multipart/form-data" hx-target="#main-content">
-                        <button style="font-size: large;">-</button>
-                    </form>
-                {% endif %}
-                <button onclick="addToQueue('../static/data/{{ song.songfile }}')">Add to queue</button><br>
-                <b class="popisky_play">{{ song.author }}</b>
+                <div class="list-actions">
+                    <button class="action-btn" onclick="addToQueue('/static/data/{{ song.songfile }}')">+ Queue</button>
+                    <button class="action-btn" onclick="showPlaylistDialog('{{ song.song_id }}')">+ Playlist</button>
+                    
+                    {% if playlist.author == user %}
+                        <form hx-post="{{ url_for('del_from_playlist', playlist_id=playlist.id, placement=loop.index) }}" onclick="return confirm('Remove from playlist?')" hx-target="#main-content" style="margin: 0;">
+                            <button class="action-btn" style="color: #ff4d4d; border-color: #ff4d4d;">X</button>
+                        </form>
+                    {% endif %}
+                </div>
             </div>
         </div>
     {% endfor %}
@@ -58,9 +68,9 @@
                 {% endfor %}
             </select><br>
             <input type="hidden" name="song" id="song-id-input">
-            <input type="submit" value="Add">
+            <input type="submit" value="Add" class="action-btn" style="margin-top: 10px;">
         </form>
-        <button onclick="closePlaylistDialog()">Cancel</button>
+        <button class="action-btn" onclick="closePlaylistDialog()" style="margin-top: 10px;">Cancel</button>
     </dialog>
 </div>
 
@@ -73,16 +83,16 @@
             <label for ="">Description:</label>
             <input type="text" name="description" value="{{ playlist.description }}"/><br>
             <input type="hidden" name="playlist" value="{{ playlist.id }}">
-            <input type="submit" value="Edit">
+            <input type="submit" value="Edit" class="action-btn" style="margin-top: 10px;">
         </form>
-        <button onclick=closeEditPlaylistDialog()>Cancel</button>
+        <button class="action-btn" onclick="closeEditPlaylistDialog()" style="margin-top: 10px;">Cancel</button>
     </dialog>
 </div>
 
 <script>
     window.playlistList = [
         {% for song in songs %}
-            "../static/data/{{ song.songfile }}",
+            "/static/data/{{ song.songfile }}",
         {% endfor %}
     ];
 

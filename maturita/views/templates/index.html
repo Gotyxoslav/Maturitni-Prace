@@ -1,6 +1,96 @@
-<title>Toney</title>
-{% for song in songs %}
-    <span>{{ song.title }}</span>
-    <button onclick="play_song('../static/data/{{ song.songfile }}')"> ▶️ </button>
-    <br>
-{% endfor %}
+<title>Toney | Home</title>
+
+<div style="color: white; margin-top: 10px;">
+    
+    <h2>Albums</h2><br>
+    <div class="media-scroller">
+        {% for album in albums %}
+            <div class="media-card">
+                <a href="#" hx-get="{{ url_for('albums', id=album.album_id) }}" hx-target="#main-content" hx-push-url="true" style="text-decoration: none;">
+                    <img src="{{ album.albumfile }}" class="cover_image" style="height: 150px; width: 150px;"/>
+                    <p>{{ album.title }}</p>
+                </a>
+                <a href="#" hx-get="{{ url_for('profile', id=album.author) }}" hx-target="#main-content" hx-push-url="true" class="media-subtitle">
+                    {{ names[album.author] }} 
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <br><br>
+
+    <h2>Playlists</h2><br>
+    <div class="media-scroller">
+        {% for playlist in playlists %}
+            <div class="media-card">
+                <a href="#" hx-get="{{ url_for('playlists', playlist_id=playlist.id) }}" hx-target="#main-content" hx-push-url="true" style="text-decoration: none;">
+                    <img src="{{ playlist.playlistfile }}" class="cover_image" style="height: 150px; width: 150px; object-fit: cover;" />
+                    <p>{{ playlist.name }}</p>
+                </a>
+                <a href="#" hx-get="{{ url_for('profile', id=playlist.author) }}" hx-target="#main-content" hx-push-url="true" class="media-subtitle">
+                    {{ names[playlist.author] }} 
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <br><br>
+
+    <h2>Songs</h2><br>
+    <div class="list-grid">
+        {% for song in songs %}
+            {% set ns = namespace(found_album=false) %}
+            
+            {% for album in albums %}
+                {% if album.album_id == song.album %}
+                    {% set ns.found_album = true %}
+                    <div class="list-row" style="padding: 5px;">
+                        
+                        <a onclick="play_song('/static/data/{{ song.songfile }}')">
+                            <img src="{{ album.albumfile }}" class="cover_image" style="height: 50px; width: 50px;" />
+                        </a>
+                        
+                        <div class="list-details" style="margin-left: 10px;">
+                            <div class="list-text">
+                                <a onclick="play_song('/static/data/{{ song.songfile }}')"><b>{{ song.title }}</b></a>
+                                <b class="list-author">
+                                    <a href="#" hx-get="{{ url_for('profile', id=song.author) }}" hx-target="#main-content" hx-push-url="true" style="color: #b3b3b3;">
+                                        {{ names[song.author] }} 
+                                    </a> ♦ {{ album.title }}
+                                </b>
+                            </div>
+                            
+                            <div class="list-actions">
+                                <button class="action-btn" onclick="addToQueue('/static/data/{{ song.songfile }}')">+ Queue</button>
+                            </div>
+                        </div>
+
+                    </div>
+                {% endif %}
+            {% endfor %}
+            
+            {% if not ns.found_album %}
+                <div class="list-row" style="padding: 5px;">
+                    <div style="height: 50px; width: 50px; background-color: #333; border-radius: 6%; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="play_song('/static/data/{{ song.songfile }}')">🎵</div>
+                    
+                    <div class="list-details" style="margin-left: 10px;">
+                        <div class="list-text">
+                            <a onclick="play_song('/static/data/{{ song.songfile }}')"><b>{{ song.title }}</b></a>
+                            <b class="list-author">
+                                <a href="#" hx-get="{{ url_for('profile', id=song.author) }}" hx-target="#main-content" hx-push-url="true" style="color: #b3b3b3;">
+                                    {{ names.get(song.author, 'Unknown') }} 
+                                </a>
+                            </b>
+                        </div>
+                        <div class="list-actions">
+                            <button class="action-btn" onclick="addToQueue('/static/data/{{ song.songfile }}')">+ Queue</button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+        {% endfor %}
+    </div>
+    
+    <br><br><br>
+</div>

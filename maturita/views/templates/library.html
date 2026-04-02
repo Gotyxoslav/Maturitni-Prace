@@ -1,27 +1,22 @@
 <title>Toney | Library</title>
-<div>
-    <button onclick=showPlaylistDialog()>Add Playlist</button>
+<div style="color: white;">
+    <button class="action-btn" onclick="showPlaylistDialog()">Add Playlist</button>
 
-    <br><h1>Playlists</h1><br>
-    <div>
-        <table> 
-            <tr>
-                {% for playlist in playlists %}
-                    {% if playlist.author == user %}
-                        {% set has_playlist = true %}
-                        <th>
-                            <div>
-                                <a href="#" class="cover_image" hx-get="{{ url_for('playlists', playlist_id=playlist.id) }}" hx-target="#main-content" hx-push-url="true">
-                                    <img src="{{ playlist.playlistfile }}" style="height: 150px; width: 150px;" />
-                                    <p>{{ playlist.name }}</p>
-                                </a>
-                            </div>
-                        </th>
-                    {% endif %}
-                {% endfor %}
-            </tr>
-        </table><br>
-    </div>
+    <br><br><h1>Playlists</h1><br>
+    
+    <div class="media-scroller">
+        {% for playlist in playlists %}
+            {% if playlist.author == user %}
+                {% set has_playlist = true %}
+                <div class="media-card">
+                    <a href="#" hx-get="{{ url_for('playlists', playlist_id=playlist.id) }}" hx-target="#main-content" hx-push-url="true" style="text-decoration: none;">
+                        <img src="{{ playlist.playlistfile }}" class="cover_image" style="height: 150px; width: 150px;" />
+                        <p>{{ playlist.name }}</p>
+                    </a>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div><br>
 </div>
 
 <div>
@@ -29,12 +24,12 @@
         <form hx-post="{{ url_for('make_playlist') }}" hx-target="#main-content" hx-encoding="multipart/form-data">
             <input type="file" name="playlistfile" accept=".png, .jpg, .jpeg"><br>
             <label for="">Name:</label>
-            <input type="text" name="name"/><br>
+            <input type="text" name="name" autocomplete="off"/><br>
             <label for ="">Description:</label>
-            <input type="text" name="description"/><br>
-            <input type="submit" value="Add">
+            <input type="text" name="description" autocomplete="off"/><br>
+            <input type="submit" value="Add" class="action-btn" style="margin-top: 10px;">
         </form>
-        <button onclick=closePlaylistDialog()>Cancel</button>
+        <button class="action-btn" onclick="closePlaylistDialog()" style="margin-top: 10px;">Cancel</button>
     </dialog>
 </div>
 

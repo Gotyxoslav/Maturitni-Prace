@@ -6,17 +6,17 @@
     <title>Register</title>
     <link rel="stylesheet" href="../static/style.css">
 </head>
-<body class="pozadi">
+<body class="background" style="color: white;">
     <form action="{{url_for('register')}}" method="POST">
-        <label >username:</label><br>
-        <input type="text" name="username"><br>
-        <label >e-mail:</label><br>
-        <input type="email" name="email"><br>
-        <label >password:</label><br>
-        <input type="password" name="password"><br>
-        <input type="submit" value="Register"/>
+        <label>username:</label><br>
+        <input type="text" name="username"><br><br>
+        <label>e-mail:</label><br>
+        <input type="email" name="email"><br><br>
+        <label>password:</label><br>
+        <input type="password" name="password"><br><br>
+        <input type="submit" value="Register" class="action-btn"/>
     </form><br>
 
-    <a href="{{url_for('login')}}" class="btn">Login</a>
+    <a href="{{url_for('login')}}" style="color: azure;">Login</a>
 </body>
 </html>

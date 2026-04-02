@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
     QStackedWidget
 )
 
-from sql import get_data, update_data
+from backend.sql import get_data, update_data
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError

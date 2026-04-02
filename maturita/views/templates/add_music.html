@@ -1,74 +1,78 @@
-
 <title>Toney | Manage Music</title>
-{% if error %}
-    <div style="color:red;">
-        {{ error }}
+
+<div style="color: white;">
+    {% if error %}
+        <div style="color:red;">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <h1>Manage Music</h1><br>
+    <div>
+        <button onclick="openMusic(event, 'Album')" class="tablinks action-btn">Album</button>
+        <button onclick="openMusic(event, 'Song')" class="tablinks action-btn">Song</button>
     </div>
-{% endif %}
-<h1>Manage Music</h1>
-<div>
-    <button onclick="openMusic(event, 'Album')" class="tablinks">Album</button>
-    <button onclick="openMusic(event, 'Song')" class="tablinks">Song</button>
-</div>
+    <br>
 
-<div id="Album" class="tabcontent" style="display: none;">
-    <h1>Add Album</h1>
-    <form hx-post="{{ url_for('add_album') }}" hx-target="#main-content" hx-encoding="multipart/form-data">
-        <label for="">Title:</label>
-        <input type="text" name="title" required autocomplete="off"/><br>
-        <label for ="">Release Date:</label>
-        <input type="number" name="release" required autocomplete="off"/><br>
-        <label for ="">Album Cover:</label>
-        <input type="file" name="albumfile" accept=".png, .jpg, .jpeg" required><br>
-        <input type="submit" value="Add">
-    </form><br>
+    <div id="Album" class="tabcontent" style="display: none;">
+        <h1>Add Album</h1>
+        <form hx-post="{{ url_for('add_album') }}" hx-target="#main-content" hx-encoding="multipart/form-data">
+            <label for="">Title:</label>
+            <input type="text" name="title" required autocomplete="off"/><br>
+            <label for ="">Release Date:</label>
+            <input type="number" name="release" required autocomplete="off"/><br>
+            <label for ="">Album Cover:</label>
+            <input type="file" name="albumfile" accept=".png, .jpg, .jpeg" required><br>
+            <input type="submit" value="Add" class="action-btn">
+        </form><br>
 
-    <h1>Edit Album</h1>
-    <form action="{{ url_for('edit_album') }}" method="POST" enctype="multipart/form-data">
-        <label for="edit-album-select">Album:</label>
-        <select name="id" id="edit-album-select" required class="selecter" onchange="fillAlbumEdit()">
-            {% if session["role"] == 1 %}
-                {% for album in albums %}
-                    <option value="{{ album.album_id }}" data-title="{{ album.title }}" data-release="{{ album.release_date }}">{{ album.title }} by {{ names[album.author] }}</option>
-                {% endfor %}
-            {% else %}
-                {% for album in albums %}
-                    {% if session["user"] == album.author %}
-                        <option value="{{ album.album_id }}" data-title="{{ album.title }}" data-release="{{ album.release_date }}">{{ album.title }}</option>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-        </select><br>
+        <h1>Edit Album</h1>
+        <form action="{{ url_for('edit_album') }}" method="POST" enctype="multipart/form-data">
+            <label for="edit-album-select">Album:</label>
+            <select name="id" id="edit-album-select" required class="selecter" onchange="fillAlbumEdit()">
+                <option value="" disabled selected>-- Select an Album --</option>
+                {% if session["role"] == 1 %}
+                    {% for album in albums %}
+                        <option value="{{ album.album_id }}" data-title="{{ album.title }}" data-release="{{ album.release_date }}">{{ album.title }} by {{ names[album.author] }}</option>
+                    {% endfor %}
+                {% else %}
+                    {% for album in albums %}
+                        {% if session["user"] == album.author %}
+                            <option value="{{ album.album_id }}" data-title="{{ album.title }}" data-release="{{ album.release_date }}">{{ album.title }}</option>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </select><br>
 
-        <label for="edit-album-title">Title:</label>
-        <input type="text" name="title" id="edit-album-title" required autocomplete="off"/><br>
-        <label for ="edit-album-release">Release Date:</label>
-        <input type="number" name="release" id="edit-album-release" required autocomplete="off"/><br>
-        <label for ="">Album Cover:</label>
-        <input type="file" name="albumfile" accept=".png, .jpg, .jpeg"><br>
-        <input type="submit" value="Edit">
-    </form><br>
+            <label for="edit-album-title">Title:</label>
+            <input type="text" name="title" id="edit-album-title" required autocomplete="off"/><br>
+            <label for ="edit-album-release">Release Date:</label>
+            <input type="number" name="release" id="edit-album-release" required autocomplete="off"/><br>
+            <label for ="">Album Cover:</label>
+            <input type="file" name="albumfile" accept=".png, .jpg, .jpeg"><br>
+            <input type="submit" value="Edit" class="action-btn">
+        </form><br>
 
-    <h1>Delete Album</h1>
-    <form action="{{ url_for('del_album') }}" method="POST" enctype="multipart/form-data">
-        <label for="id">Album:</label>
-        <select name="id" required class="selecter">
-            {% if session["role"] == 1 %}
-                {% for album in albums %}
-                    <option value="{{ album.album_id }}">{{ album.title }} by {{ names[album.author] }}</option>
-                {% endfor %}
+        <h1>Delete Album</h1>
+        <form action="{{ url_for('del_album') }}" method="POST" enctype="multipart/form-data">
+            <label for="id">Album:</label>
+            <select name="id" required class="selecter">
+                {% if session["role"] == 1 %}
+                    {% for album in albums %}
+                        <option value="{{ album.album_id }}">{{ album.title }} by {{ names[album.author] }}</option>
+                    {% endfor %}
 
-            {% else %}
-                {% for album in albums %}
-                    {% if session["user"] == album.author %}
-                        <option value="{{ album.album_id }}">{{ album.title }}</option>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-        </select><br>
-        <input type="submit" value="Delete">
-    </form><br>
-</div>
+                {% else %}
+                    {% for album in albums %}
+                        {% if session["user"] == album.author %}
+                            <option value="{{ album.album_id }}">{{ album.title }}</option>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </select><br>
+            <input type="submit" value="Delete" class="action-btn">
+        </form><br>
+    </div>
 
     <div id="Song" class="tabcontent" style="display: none;">
         <h1>Add Song</h1>
@@ -92,12 +96,14 @@
             </select><br>
             <label for ="">Song:</label>
             <input type="file" name="songfile" accept=".mp3" required><br>
-            <input type="submit" value="Add">
+            <input type="submit" value="Add" class="action-btn">
         </form><br>
+
         <h1>Edit Song</h1>
         <form action="{{ url_for('edit_song') }}" method="POST" enctype="multipart/form-data">
             <label for="edit-song-select">Song:</label>
             <select name="id" id="edit-song-select" required class="selecter" onchange="fillSongEdit()">
+                <option value="" disabled selected>-- Select a Song --</option>
                 {% if session["role"] == 1 %}
                     {% for song in songs %}
                         <option value="{{ song.song_id }}" data-title="{{ song.title }}" data-album="{{ song.album }}">{{ song.title }} by {{ names[song.author] }}</option>
@@ -129,8 +135,9 @@
             </select><br>
             <label for ="">Song File:</label>
             <input type="file" name="songfile" accept=".mp3"><br>
-            <input type="submit" value="Edit">
+            <input type="submit" value="Edit" class="action-btn">
         </form><br>
+
         <h1>Delete Song</h1>
         <form action="{{ url_for('del_song') }}" method="POST" enctype="multipart/form-data">
             <label for="id">Song:</label>
@@ -148,12 +155,13 @@
                     {% endfor %}
                 {% endif %}
             </select><br>
-            <input type="submit" value="Delete">
+            <input type="submit" value="Delete" class="action-btn">
         </form><br>
     </div>
+</div>
 
-    <script>
-        function openMusic(evt, MusicType) {
+<script>
+    function openMusic(evt, MusicType) {
         var i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tabcontent");
         for (i = 0; i < tabcontent.length; i++) {
@@ -165,33 +173,32 @@
         }
         document.getElementById(MusicType).style.display = "block";
         evt.currentTarget.className += " active";
-        }
+    }
 
+    function fillAlbumEdit() {
+        var select = document.getElementById("edit-album-select");
+        var selectedOption = select.options[select.selectedIndex];
+        
+        // grabs the hidden data from the option tag
+        var title = selectedOption.getAttribute("data-title");
+        var release = selectedOption.getAttribute("data-release");
+        
+        // pushes data into the text inputs
+        document.getElementById("edit-album-title").value = title;
+        document.getElementById("edit-album-release").value = release;
+    }
 
-        function fillAlbumEdit() {
-            var select = document.getElementById("edit-album-select");
-            var selectedOption = select.options[select.selectedIndex];
-            
-            // Grab the hidden data from the <option> tag
-            var title = selectedOption.getAttribute("data-title");
-            var release = selectedOption.getAttribute("data-release");
-            
-            // Push that data into the text inputs!
-            document.getElementById("edit-album-title").value = title;
-            document.getElementById("edit-album-release").value = release;
-        }
-
-        function fillSongEdit() {
-            var select = document.getElementById("edit-song-select");
-            var selectedOption = select.options[select.selectedIndex];
-            
-            // Grab the hidden data from the <option> tag
-            var title = selectedOption.getAttribute("data-title");
-            var albumId = selectedOption.getAttribute("data-album");
-            
-            // Push the title into the text input
-            document.getElementById("edit-song-title").value = title;
-            // Select the correct album in the dropdown!
-            document.getElementById("edit-song-album").value = albumId;
-        }
-    </script>
+    function fillSongEdit() {
+        var select = document.getElementById("edit-song-select");
+        var selectedOption = select.options[select.selectedIndex];
+        
+        // grabs the hidden data from the option tag
+        var title = selectedOption.getAttribute("data-title");
+        var albumId = selectedOption.getAttribute("data-album");
+        
+        // pushes title into the text input
+        document.getElementById("edit-song-title").value = title;
+        // selects the correct album in the dropdown
+        document.getElementById("edit-song-album").value = albumId;
+    }
+</script>
