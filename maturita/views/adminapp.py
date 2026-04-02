@@ -233,7 +233,7 @@ class UserInfoWin_Edit(QWidget):
             "email": self.new_email,
             "password": self.new_password,
             "role": self.new_role
-        }, self.id)
+        }, "id", self.id)
 
         self.info_label.setText("Info updated in the database!")
 

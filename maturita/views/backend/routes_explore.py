@@ -38,6 +38,9 @@ def init_explore(app):
         # this loops through the playlists to find the matching id
         playlist = next((playlist for playlist in playlists if playlist['id'] == playlist_id), None)
 
+        if playlist == None:
+            return render_page("404.html") 
+
         songs = get_joined_data(
             table1 = "MATURITA_HOL_SONGS", 
             table2 = "MATURITA_HOL_PLAYLIST_SONGS", 
@@ -56,6 +59,10 @@ def init_explore(app):
 
         # looks through users to find ID
         user = next((user for user in users if user['id'] == id), None)
+
+        if user == None:
+            return render_page("404.html") 
+
         return render_page("profile.html", user=user, playlists=playlists)
 
     @app.route('/explore')

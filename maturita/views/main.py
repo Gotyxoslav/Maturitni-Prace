@@ -4,6 +4,7 @@ from flask import Flask
 from backend.routes_auth import init_auth
 from backend.routes_explore import init_explore
 from backend.routes_manage import init_manage
+from backend.utils import init_errors
 
 app = Flask(__name__)
 
@@ -15,6 +16,7 @@ app.secret_key = "8f92j65d4fsfoiuilsfdsd533"
 init_auth(app) # all pages related to authentication (login, register, logout)
 init_explore(app) # all pages related to displaying data to the user (library, playlist, albums, ...)
 init_manage(app) # all pages related to modifying database and saving data (delete playlist, add song, edit album, ...)
+init_errors(app) # this is for the 404 page
 
 if __name__ == "__main__":
     app.run(debug=True)
