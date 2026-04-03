@@ -251,7 +251,7 @@ win.addWidget(pg0)
 win.addWidget(pg1)
 win.addWidget(pg2)
 
-win.setWindowTitle("Toney Admin Manager")
+win.setWindowTitle("Toney Admin Manager (Created by Matyáš Holakovský)")
 win.resize(300, 200)
 win.show()
 
