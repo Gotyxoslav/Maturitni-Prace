@@ -1,9 +1,11 @@
 # Toney
 Maturitní projekt
+
 Autor: Holakovský Matyáš, IT-4
 
 # Popis
 Stránka na přehrávání hudby inspirovaná aplikacemi, jako je Spotify a YouTube Music.
+
 Uživatel se může registrovat, upravit profil, poslouchat hudbu, a tvořit playlisty. Autoři pak také mohou přidávat písničky a alba.
 
 # Aktivace
