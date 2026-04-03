@@ -3,7 +3,10 @@
 <div class="nav">
     <h1><a href="#" hx-get="{{ url_for('index') }}" hx-target="#main-content" hx-push-url="true" class="title">Toney</a></h1>
     
-    <a href="#" hx-get="{{ url_for('profile', id=session['user']) }}" hx-target="#main-content" hx-push-url="true" class="btn">Profile</a>
+    {% if "user" in session %}
+        <a href="#" hx-get="{{ url_for('profile', id=session['user']) }}" hx-target="#main-content" hx-push-url="true" class="btn">Profile</a>
+    {% endif %}
+    
     <a href="#" hx-get="{{ url_for('index') }}" hx-target="#main-content" hx-push-url="true" class="btn">Home</a> <!-- hx-get means basically that it gets the html of the thing we ask it, hx-target puts the html in the thing (so here in main content div), hx-push-url is if it should or shouldn't update the browser url like a normal website -->
     <a href="#" hx-get="{{ url_for('explore') }}" hx-target="#main-content" hx-push-url="true" class="btn">Explore</a>
     <a href="#" hx-get="{{ url_for('library') }}" hx-target="#main-content" hx-push-url="true" class="btn">Library</a>
