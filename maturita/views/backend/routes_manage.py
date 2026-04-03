@@ -241,8 +241,11 @@ def init_manage(app):
         albums = get_data("MATURITA_HOL_ALBUMS")
 
         for song in songs:
-            if "album" in song and song["album"] == id:
-                filepath = os.path.join(song['songfile'])
+            if "album" in song and str(song["album"]) == id:
+                song_filename = os.path.basename(song['songfile']) 
+
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], "songs", song_filename)
+                
                 if os.path.exists(filepath):
                     os.remove(filepath)
 
@@ -250,9 +253,7 @@ def init_manage(app):
             if "album_id" in album and album["album_id"] == id: 
                 album_name = os.path.basename(album['albumfile']) # gets the pure filename without path
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], "albums", album_name)
-                print(filepath)
                 if os.path.exists(filepath):
-                    print("found!")
                     os.remove(filepath)
 
         del_data("MATURITA_HOL_SONGS", {"album": id})
